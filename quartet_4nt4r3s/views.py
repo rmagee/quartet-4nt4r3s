@@ -30,6 +30,20 @@ class AntaresNumberRequest(views.APIView):
     """
     Mimics:
     /rfxcelwss/services/ISerializationServiceSoapHttpPort
+    Pool will be found using the itemId value:
+    <ns:itemId qlfr="GTIN">[SOME.GTIN.HERE]</ns:itemId>
+    if a list_based_region processing parameter with key 'item_value' and 'item_id' value is found,
+    its associated pool will be used.
+    Example:
+    ProcessingParameter: {key: "item_value",
+                          value: "10342195308095"}
+    would be a match for:
+    <ns:itemId qlfr="GTIN">10342195308095</ns:itemId>
+
+    If none is found, then the itemId value is matched against the pool.machine_name.
+    For instance a pool.machine_name equal to 10342195308095 would be matched if the itemId in the inbound xml 
+    is the following:
+     <ns:itemId qlfr="GTIN">10342195308095</ns:itemId>
     """
     permission_classes = []
 
@@ -49,12 +63,11 @@ class AntaresNumberRequest(views.APIView):
             pool = self.match_item_with_pool_machine_name(item_id)
         url = "%s://%s/serialbox/allocate/%s/%d/?format=xml" % (request.scheme, request.get_host(), pool.machine_name, int(id_count))
         api_response = requests.get(url, auth=HTTPBasicAuth(username, password))
-        response = Response(api_response.text, api_response.status_code)
-        return response
+        return Response(api_response.text, api_response.status_code)
     
     def match_item_with_param(self, item_id):
         try:
-            return ProcessingParameters.objects.get(key="item_value", value=item_id)
+            return ProcessingParameters.objects.get(key="item_value", value=item_id).list_based_region.pool
         except:
             return None
 
