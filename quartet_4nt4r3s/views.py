@@ -31,7 +31,7 @@ class AntaresNumberRequest(views.APIView):
     Mimics:
     /rfxcelwss/services/ISerializationServiceSoapHttpPort
     Pool will be found using the itemId value:
-    <ns:itemId qlfr="GTIN">[SOME.GTIN.HERE]</ns:itemId>
+    <ns:itemId qlfr="GTIN">[SOME.GTIN.OR.SSCC.HERE]</ns:itemId>
     if a list_based_region processing parameter with key 'item_value' and 'item_id' value is found,
     its associated pool will be used.
     Example:
