@@ -8,11 +8,11 @@ from list_based_flavorpack.models import ProcessingParameters
 from serialbox.models import Pool
 
 
-class IgnoreClientContentNegotiation(DefaultContentNegotiation):
+class DefaultXMLContent(DefaultContentNegotiation):
 
     def select_renderer(self, request, renderers, format_suffix):
         """
-        Select the first renderer in the `.renderer_classes` list.
+        Use the XML renderer as default.
         """
         # Allow URL style format override.  eg. "?format=json
         format_query_param = self.settings.URL_FORMAT_OVERRIDE
@@ -33,7 +33,7 @@ class AntaresNumberRequest(views.APIView):
     """
     permission_classes = []
 
-    content_negotiation_class = IgnoreClientContentNegotiation
+    content_negotiation_class = DefaultXMLContent
 
     def post(self, request, format=None):
         root = etree.fromstring(request.body)
