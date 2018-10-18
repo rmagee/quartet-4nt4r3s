@@ -52,6 +52,8 @@ class AntaresNumberRequest(views.APIView):
     def get_tag_text(self, root, match_string):
         try:
             return root.find(match_string).text
+        except AttributeError:
+            raise
         except:
             return None
         
