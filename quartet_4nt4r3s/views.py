@@ -49,14 +49,20 @@ class AntaresNumberRequest(views.APIView):
 
     content_negotiation_class = DefaultXMLContent
 
+    def get_tag_text(self, root, match_string):
+        try:
+            return root.find(match_string).text
+        except:
+            return None
+        
     def post(self, request, format=None):
         root = etree.fromstring(request.body)
         header = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Header')
         body = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
-        username = header.find('.//{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Username').text
-        password = header.find('.//{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password').text
-        id_count = body.find('.//{http://xmlns.rfxcel.com/traceability/serializationService/3}idCount').text
-        item_id = body.find('.//{http://xmlns.rfxcel.com/traceability/serializationService/3}itemId').text
+        username = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Username')
+        password = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password')
+        id_count = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}idCount')
+        item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}itemId')
         # match region/pool with item_id.
         pool = self.match_item_with_param(item_id)
         if not pool:
