@@ -1,0 +1,13 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+   <soap:Header>
+      <wsa:MessageID xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">urn:uuid:{{ uuid_msg_id }}</wsa:MessageID>
+   </soap:Header>
+   <soap:Body>
+      <ns4:processMessagesResponse contentStructVer="2.5" createDateTime="{{ created_date_time }}" requestId="any-request" responseId="" xmlns="http://xmlns.rfxcel.com/traceability/api/3" xmlns:ns10="http://xmlns.rfxcel.com/traceability/QueryTraceIdDetailService/1" xmlns:ns2="http://xmlns.rfxcel.com/traceability/3" xmlns:ns3="http://www.w3.org/2004/11/xmlmime" xmlns:ns4="http://xmlns.rfxcel.com/traceability/messagingService/3" xmlns:ns5="http://xmlns.rfxcel.com/traceability/serializationService/3" xmlns:ns6="http://xmlns.rfxcel.com/traceability/identifier/3" xmlns:ns7="http://xmlns.rfxcel.com/traceability/serializationQueryService/3" xmlns:ns8="http://xmlns.rfxcel.com/traceability/QueryLotSummaryService/1" xmlns:ns9="http://xmlns.rfxcel.com/traceability/QuerySimpleEpcListService/1">
+         <result>
+            <ns2:code>2</ns2:code>
+            <ns2:msg xml:lang="en">RECEIVED</ns2:msg>
+         </result>
+      </ns4:processMessagesResponse>
+   </soap:Body>
+</soap:Envelope>

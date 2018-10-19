@@ -1,0 +1,30 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns0="http://xmlns.rfxcel.com/traceability/api/3" xmlns:ns1="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns2="http://xmlns.rfxcel.com/traceability/messagingService/3" xmlns:ns3="http://xmlns.rfxcel.com/traceability/3" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <SOAP-ENV:Body>
+        <SOAP-ENV:Fault>
+            <faultcode>SOAP-ENV:Fault</faultcode>
+            <faultstring/>
+            <detail>
+                <ns3:exception xmlns:ns9="http://www.w3.org/2004/11/xmlmime">
+                    <ns3:result>
+                        <ns3:code>2000</ns3:code>
+                        <ns3:msg xml:lang="en">Message Processing Error</ns3:msg>
+                        <ns3:paramList>
+                            <ns3:val name="createDateTime">2016-02-20T22:56:02Z</ns3:val>
+                            <ns3:val name="requestId">Ship-18-10-15-2</ns3:val>
+                            <ns3:val name="senderId">0366992000009</ns3:val>
+                        </ns3:paramList>
+                    </ns3:result>
+                    <ns3:cause>
+                        <ns3:result>
+                            <ns3:code>1005</ns3:code>
+                            <ns3:msg xml:lang="en">Invalid username or password</ns3:msg>
+                            <ns3:paramList>
+                                <ns3:val name="Username">john</ns3:val>
+                            </ns3:paramList>
+                        </ns3:result>
+                    </ns3:cause>
+                </ns3:exception>
+            </detail>
+        </SOAP-ENV:Fault>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
