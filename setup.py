@@ -3,6 +3,8 @@
 import os
 import re
 import sys
+import glob
+
 
 try:
     from setuptools import setup
@@ -19,6 +21,14 @@ def get_version(*file_paths):
     if version_match:
         return version_match.group(1)
     raise RuntimeError('Unable to find version string.')
+
+def get_data_files(path):
+    data_files = []
+    directories = glob.glob(path)
+    for directory in directories:
+        files = glob.glob(directory + '*')
+        data_files.append((directory, files))
+    return data_files
 
 
 version = get_version("quartet_4nt4r3s", "__init__.py")
@@ -55,6 +65,7 @@ setup(
     packages=[
         'quartet_4nt4r3s',
     ],
+    data_files=get_data_files('quartet_4nt4r3s/templates/soap/'),
     include_package_data=True,
     install_requires=[],
     license="GPLv3",
