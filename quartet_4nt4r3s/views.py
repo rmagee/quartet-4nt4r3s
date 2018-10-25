@@ -91,8 +91,8 @@ class AntaresNumberRequest(AntaresAPI):
         pool = self.match_item_with_param(item_id)
         if not pool:
             pool = self.match_item_with_pool_machine_name(item_id)
-        url = "%s://%s/serialbox/allocate/%s/%d/?format=xml" % (request.scheme, request.get_host(), pool.machine_name, int(id_count))
-        api_response = requests.get(url, auth=HTTPBasicAuth(username, password))
+        url = "%s://localhost/serialbox/allocate/%s/%d/?format=xml" % (request.scheme, pool.machine_name, int(id_count))
+        api_response = requests.get(url, auth=HTTPBasicAuth(username, password), verify=False)
         return Response(api_response.text, api_response.status_code)
     
     def match_item_with_param(self, item_id):
