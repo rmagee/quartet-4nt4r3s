@@ -87,25 +87,21 @@ class AntaresNumberRequest(AntaresAPI):
         password = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password')
         id_count = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}idCount')
         item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}itemId')
-        pool = self.match_item_with_pool_machine_name(item_id)        
+        event_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}eventId')
+        pool = self.match_item_with_pool_machine_name(item_id)
         if not pool:
             # match region/pool with item_id.
             pool = self.match_item_with_param(item_id)
-        url = "%s://localhost/serialbox/allocate/%s/%d/?format=xml" % (request.scheme, pool.machine_name, int(id_count))
-        api_response = requests.get(url, auth=HTTPBasicAuth(username, password), verify=False)
+        payload = {'format': 'xml', 'eventId': event_id, 'requestId': event_id}
+        url = "%s://localhost/serialbox/allocate/%s/%d/" % (request.scheme, pool.machine_name, int(id_count))
+        api_response = requests.get(url, params=payload, auth=HTTPBasicAuth(username, password), verify=False)
         return Response(api_response.text, api_response.status_code)
     
     def match_item_with_param(self, item_id):
-        try:
-            return ProcessingParameters.objects.get(key="item_value", value=item_id).list_based_region.pool
-        except:
-            return None
+        return ProcessingParameters.objects.get(key="item_value", value=item_id).list_based_region.pool
 
     def match_item_with_pool_machine_name(self, item_id):
-        try:
-            return Pool.objects.get(machine_name=item_id)
-        except:
-            return None
+        return Pool.objects.get(machine_name=item_id)
 
 
 class AntaresEPCISReport(AntaresAPI):
