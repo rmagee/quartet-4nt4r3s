@@ -77,8 +77,6 @@ class AntaresNumberRequest(AntaresAPI):
     is the following:
      <ns:itemId qlfr="GTIN">10342195308095</ns:itemId>
     """
-
-        
     def post(self, request, format=None):
         root = etree.fromstring(request.body)
         header = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Header')
@@ -86,11 +84,16 @@ class AntaresNumberRequest(AntaresAPI):
         username = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Username')
         password = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password')
         id_count = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}idCount')
-        item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}itemId')
+        try:
+            item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}itemId')
+        except:
+            item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}allocOrgId')
+            extension = self.get_tag_text(body, ".//{http://xmlns.rfxcel.com/traceability/3}val[@name='SSCC_EXT_DIGIT']")
+            item_id = extension + item_id  # we need the extension in there to match different pools with the extension.                                                       
         event_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}eventId')
         pool = self.match_item_with_pool_machine_name(item_id)
         if not pool:
-            # match region/pool with item_id.
+            # match region/pool with item_id.                                                                                                                                 
             pool = self.match_item_with_param(item_id)
         payload = {'format': 'xml', 'eventId': event_id, 'requestId': event_id}
         url = "%s://localhost/serialbox/allocate/%s/%d/" % (request.scheme, pool.machine_name, int(id_count))
