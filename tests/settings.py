@@ -22,6 +22,12 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sites",
+    'quartet_epcis.apps.QuartetEPCISConfig',
+    'quartet_templates.apps.QuartetTemplatesConfig',
+    'quartet_output.apps.QuartetOutputConfig',
+    'quartet_capture.apps.QuartetCaptureConfig',
+    "serialbox",
+    'list_based_flavorpack.apps.ListBasedFlavorpackConfig',
     "quartet_4nt4r3s",
 ]
 
