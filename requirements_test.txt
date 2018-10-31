@@ -6,7 +6,7 @@ codecov>=2.0.0
 sphinx_rtd_theme
 sphinx
 recommonmark
-
-
+quartet_epcis
+quartet_capture
 
 # Additional test requirements go here
