@@ -8,6 +8,7 @@ sphinx
 recommonmark
 serialbox
 list_based_flavorpack
+celery
 quartet_epcis
 quartet_output
 quartet_capture
