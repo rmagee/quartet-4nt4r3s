@@ -1,0 +1,35 @@
+<epcis:EPCISDocument xmlns:epcis="urn:epcglobal:epcis:xsd:1"
+                     xmlns:gs1ushc="http://epcis.gs1us.org/hc/ns"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+                     xmlns:ns3="http://xmlns.rfxcel.com/traceability/3"
+                     xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+                     xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+                     xmlns:ns0="http://xmlns.rfxcel.com/traceability/api/3"
+                     xmlns:ns1="http://schemas.xmlsoap.org/soap/envelope/"
+                     xmlns:ns2="http://xmlns.rfxcel.com/traceability/messagingService/3"
+                     schemaVersion="1.1"
+                     xsi:schemaLocation="urn:epcglobal:epcis:xsd:1 EPCglobal-epcis-1_1.xsd"
+                     creationDate="2018-10-30T08:00:50Z">
+    <EPCISBody>
+        <EventList>
+            <ObjectEvent>
+                <eventTime>2018-10-30T08:00:48.832Z</eventTime>
+                <eventTimeZoneOffset>-05:00</eventTimeZoneOffset>
+                <epcList>
+                    <epc>urn:epc:id:sgtin:0342195.030809.900654902111</epc>
+                    <epc>urn:epc:id:sgtin:0342195.030809.940878916934</epc>
+                </epcList>
+                <action>DELETE</action>
+                <bizStep>urn:epcglobal:cbv:bizstep:decommissioning</bizStep>
+                <disposition>urn:epcglobal:cbv:disp:inactive</disposition>
+                <readPoint>
+                    <id>urn:epc:id:sgln:0358716.00000.0</id>
+                </readPoint>
+                <bizLocation>
+                    <id>urn:epc:id:sgln:0358716.00000.0</id>
+                </bizLocation>
+            </ObjectEvent>
+        </EventList>
+    </EPCISBody>
+</epcis:EPCISDocument>
