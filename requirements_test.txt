@@ -7,6 +7,7 @@ sphinx_rtd_theme
 sphinx
 recommonmark
 serialbox
+list_based_flavorpack
 quartet_epcis
 quartet_output
 quartet_capture
