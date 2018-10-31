@@ -8,5 +8,6 @@ sphinx
 recommonmark
 quartet_epcis
 quartet_capture
+quartet_templates
 
 # Additional test requirements go here
