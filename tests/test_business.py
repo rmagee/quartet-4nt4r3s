@@ -34,8 +34,17 @@ class BusinessRulesTestCase(TestCase):
         # parse the xml
         self._parse_test_data()
         # check the aggregation details
-        parent_id = entries.Entry.objects.get(
-            identifier='urn:epc:id:sgtin:0342195.030809.853822408520')
+        id = entries.Entry.objects.get(
+            identifier='urn:epc:id:sgtin:0342195.030809.900654902111')
+        decom_event = events.Event.objects.get(
+            action='DELETE'
+        )
+        db_proxy = EPCISDBProxy()
+        self.assertEqual(len(db_proxy.get_entries_by_event(decom_event)),
+                         2)
+        evs = db_proxy.get_events_by_ilmd('lotNumber', 'ABC123')
+        self.assertEqual(len(evs), 1)
+        self.assertEqual(len(evs[0].epc_list), 16)
 
     def _parse_test_data(self, test_file='data/comm-delete.xml',
                          parser_type=BusinessEPCISParser,
