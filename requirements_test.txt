@@ -6,6 +6,7 @@ codecov>=2.0.0
 sphinx_rtd_theme
 sphinx
 recommonmark
+serialbox
 quartet_epcis
 quartet_output
 quartet_capture
