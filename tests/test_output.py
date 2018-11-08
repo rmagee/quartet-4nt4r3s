@@ -60,17 +60,6 @@ class TestQuartetOutput(TestCase):
                     context.context[ContextKeys.OUTBOUND_EPCIS_MESSAGE_KEY.value])
                 output_file.flush()
 
-            # for event in context.context[
-            #     ContextKeys.AGGREGATION_EVENTS_KEY.value]:
-            #     if event.parent_id in ['urn:epc:id:sgtin:305555.3555555.1',
-            #                            'urn:epc:id:sgtin:305555.3555555.2']:
-            #         self.assertEqual(len(event.child_epcs), 5)
-            #     else:
-            #         self.assertEqual(len(event.child_epcs), 2)
-            # task_name = context.context[ContextKeys.CREATED_TASK_NAME_KEY]
-            # execute_queued_task(task_name=task_name)
-            # task = Task.objects.get(name=task_name)
-            # self.assertEqual(task.status, 'FINISHED')
 
     # def test_rule_with_agg_comm_output_put(self):
     #     self._create_good_ouput_criterion()
