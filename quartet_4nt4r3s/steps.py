@@ -7,7 +7,7 @@ from quartet_capture.rules import RuleContext
 from quartet_epcis.parsing.parser import QuartetParser
 from quartet_4nt4r3s.conversion import AntaresBarcodeConverter
 from quartet_4nt4r3s.parser import BusinessEPCISParser
-
+from gs123.steps import ListBarcodeConversionStep
 
 class EPCISParsingStep(EPS):
     def execute(self, data, rule_context: RuleContext):
