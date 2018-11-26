@@ -41,7 +41,7 @@ class BusinessRulesTestCase(TestCase):
         )
         db_proxy = EPCISDBProxy()
         self.assertEqual(len(db_proxy.get_entries_by_event(decom_event)),
-                         2)
+                         4)
         evs = db_proxy.get_events_by_ilmd('lotNumber', 'ABC123')
         self.assertEqual(len(evs), 1)
         self.assertEqual(len(evs[0].epc_list), 16)
