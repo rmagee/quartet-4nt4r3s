@@ -46,8 +46,8 @@ class ViewTest(APITestCase):
         data = self._get_test_data()
         response = self.client.post(
             '{0}?filter=utf&run-immediately=true'.format(url),
-            {'file': data},
-            format='multipart')
+            data,
+            format='json')
         self.assertEqual(response.status_code, 200)
         self.assertIn('RECEIVED', response.data)
 
