@@ -1,3 +1,31 @@
+<?xml version="1.0"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns0="http://xmlns.rfxcel.com/traceability/api/3" xmlns:ns1="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns2="http://xmlns.rfxcel.com/traceability/messagingService/3" xmlns:ns3="http://xmlns.rfxcel.com/traceability/3" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<SOAP-ENV:Header xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xsi:schemaLocation="http://schemas.xmlsoap.org/ws/2004/08/addressing ../SOAP-Security/addressing.xsd">
+		<wsse:Security mustUnderstand="true">
+			<wsse:UsernameToken wsu:Id="UsernameToken-1">
+				<wsse:Username>testuser</wsse:Username>
+				<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">unittest</wsse:Password>
+			</wsse:UsernameToken>
+		</wsse:Security>
+	</SOAP-ENV:Header>
+	<ns1:Body>
+		<ns2:processMessages contentStructVer="3.1.3" createDateTime="2016-02-20T22:56:02Z" requestId="Commission-01-02-15">
+			<ns2:msgEnvelopeList>
+				<ns0:envelope>
+					<ns0:header>
+						<!-- Predefined Values in the System -->
+						<ns0:msgInfo>
+							<ns0:sysDeploymentId qlfr="SYS_DEF" xsi:type="ns3:QualifiedIdType"></ns0:sysDeploymentId>
+							<ns0:senderInstId qlfr="SYS_DEF" xsi:type="ns3:QualifiedIdType"></ns0:senderInstId>
+							<ns0:senderId qlfr="ORG_DEF" type="ORG_ID" xsi:type="ns3:TypedQualifiedIdType"></ns0:senderId>
+							<ns0:receiverInstId qlfr="SYS_DEF" xsi:type="ns3:QualifiedIdType">rfXcel</ns0:receiverInstId>
+							<ns0:receiverId qlfr="ORG_DEF" type="ORG_ID" xsi:type="ns3:TypedQualifiedIdType">1</ns0:receiverId>
+							<ns0:msgFormat xsi:type="ns3:OptionallyVersionedEnumType">XML</ns0:msgFormat>
+							<ns0:msgType ver="1.1" xsi:type="ns3:OptionallyVersionedEnumType">SYS_EVENTS_ENV</ns0:msgType>
+						</ns0:msgInfo>
+					</ns0:header>
+					<ns0:body>
+						<XML_SYS_EVENTS_ENV>
 <epcis:EPCISDocument xmlns:epcis="urn:epcglobal:epcis:xsd:1" xmlns:gs1ushc="http://epcis.gs1us.org/hc/ns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns3="http://xmlns.rfxcel.com/traceability/3" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:ns0="http://xmlns.rfxcel.com/traceability/api/3" xmlns:ns1="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns2="http://xmlns.rfxcel.com/traceability/messagingService/3" schemaVersion="1.1" xsi:schemaLocation="urn:epcglobal:epcis:xsd:1 EPCglobal-epcis-1_1.xsd" creationDate="2018-11-01T16:59:16Z">
                         <EPCISBody>
                            <EventList>
@@ -177,3 +205,10 @@
                            </EventList>
                         </EPCISBody>
                      </epcis:EPCISDocument>
+						</XML_SYS_EVENTS_ENV>
+					</ns0:body>
+				</ns0:envelope>
+			</ns2:msgEnvelopeList>
+		</ns2:processMessages>
+	</ns1:Body>
+</SOAP-ENV:Envelope>

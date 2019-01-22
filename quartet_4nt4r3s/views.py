@@ -1,8 +1,10 @@
 import requests
+import logging
 import uuid
 from requests.auth import HTTPBasicAuth
 from lxml import etree
 from rest_framework.response import Response
+from rest_framework import exceptions
 from rest_framework import views
 from rest_framework.negotiation import DefaultContentNegotiation
 from list_based_flavorpack.models import ProcessingParameters
@@ -10,8 +12,11 @@ from serialbox.models import Pool
 from django.contrib.auth import authenticate, login
 from rest_framework import status
 from django.template import loader
-from quartet_capture.tasks import create_and_queue_task
+from django.conf import settings
+from quartet_capture.tasks import create_and_queue_task, get_rules_by_filter
+from quartet_capture.models import Filter
 
+logger = logging.getLogger(__name__)
 
 class DefaultXMLContent(DefaultContentNegotiation):
 
@@ -117,32 +122,58 @@ class AntaresEPCISReport(AntaresAPI):
     """
 
     def post(self, request, format=None):
-        root = etree.fromstring(request.body)
-        header = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Header')
-        body = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
-        username = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Username')
-        password = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password')
-        user = self.auth_user(username = username, password = password)
-        if user:
-            data = {"uuid_msg_id": uuid.uuid1(), "created_date_time": "2018-10-10"}
-            template = loader.get_template("soap/received.xml")
-            xml = template.render(data)
-            self.trigger_epcis_task(body, user)
-            return Response(xml, status=status.HTTP_200_OK)
-        else:
-            template = loader.get_template("soap/unauthorized.xml")
-            xml = template.render({})
-            return Response(xml, status=status.HTTP_401_UNAUTHORIZED)
+        # get the message from the request
+        files = request.FILES if len(request.FILES) > 0 else request.POST
+        run_immediately = request.query_params.get('run-immediately', False)
+        if len(files) == 0:
+            raise exceptions.APIException(
+                'No files were posted.',
+                status.HTTP_400_BAD_REQUEST
+            )
+        elif len(files) > 1:
+            raise exceptions.APIException(
+                'Only one file may be posted at a time.',
+                status.HTTP_400_BAD_REQUEST
+            )
+        for file, message in files.items():
+            root = etree.fromstring(message)
+            header = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Header')
+            body = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
+            username = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Username')
+            password = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password')
+            user = self.auth_user(username = username, password = password)
+            if user:
+                data = {"uuid_msg_id": uuid.uuid1(), "created_date_time": "2018-10-10"}
+                template = loader.get_template("soap/received.xml")
+                xml = template.render(data)
+                self.trigger_epcis_task(body, user, run_immediately)
+                return Response(xml, status=status.HTTP_200_OK)
+            else:
+                template = loader.get_template("soap/unauthorized.xml")
+                xml = template.render({})
+                return Response(xml, status=status.HTTP_401_UNAUTHORIZED)
     
-    def trigger_epcis_task(self, soap_body, user):
+    def trigger_epcis_task(self, soap_body, user, run_immediately=False):
         """
         Triggers an EPCIS rule task using the EPCISDocument.
         """
         epcis_document = etree.tostring(soap_body.find('.//{urn:epcglobal:epcis:xsd:1}EPCISDocument'))
-        task = create_and_queue_task(data=epcis_document,
-                                     rule_name="EPCIS",
+        if isinstance(epcis_document, bytes):
+            epcis_document = epcis_document.decode('utf-8')
+        try:
+            default_filter = getattr(settings, 'DEFAULT_ANTARES_FILTER', 'Antares')
+            logger.info('Default antares filter is %s', default_filter)
+            rules = get_rules_by_filter(default_filter, epcis_document)
+            logger.info('Rules in filter: %', rules)
+        except Filter.DoesNotExist:
+            rules = [getattr(settings, 'DEFAULT_ANTARES_RULE', 'EPCIS')]
+            logger.debug('No filter could be found using rule %s.', rules)
+
+        for rule in rules:
+            create_and_queue_task(data=epcis_document,
+                                     rule_name=rule,
                                      task_type="Input",
-                                     run_immediately=False,
+                                     run_immediately=run_immediately,
                                      initial_status="WAITING",
                                      task_parameters=[],
                                      user_id=user.id)

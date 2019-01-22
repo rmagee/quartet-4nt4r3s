@@ -12,6 +12,7 @@ from EPCPyYes.core.v1_2.events import EventType
 from EPCPyYes.core.v1_2.CBV.dispositions import Disposition
 from EPCPyYes.core.v1_2.CBV.business_steps import BusinessSteps
 from quartet_epcis.parsing.business_parser import BusinessEPCISParser
+from quartet_4nt4r3s.parser import BusinessEPCISParser as AntaresParser
 from quartet_capture.models import Rule, Step, StepParameter, Task
 from quartet_capture.tasks import execute_rule, execute_queued_task
 from quartet_capture.rules import Rule as CRule
@@ -22,10 +23,11 @@ from django.test import TestCase
 
 from quartet_output import models
 
+
 class TestQuartetOutput(TestCase):
 
     def test_rule_with_agg_comm_output(self):
-        self._create_good_ouput_criterion()
+        self._create_good_output_criterion()
         db_rule = self._create_rule()
         self._create_template()
         self._create_step(db_rule)
@@ -39,104 +41,28 @@ class TestQuartetOutput(TestCase):
         db_task = self._create_task(db_rule)
         curpath = os.path.dirname(__file__)
         # prepopulate the db
-        self._parse_test_data('data/antares-lot-batch.xml')
-        # self._parse_test_data('data/nested_pack.xml')
-        # data_path = os.path.join(curpath, 'data/ship_pallet.xml')
-        with open(data_path, 'r') as data_file:
-            # execute the rule
-            context = execute_rule(data_file.read().encode(), db_task)
-            # make suer three aggregation events were filtered out
-            self.assertEqual(
-                len(context.context[ContextKeys.AGGREGATION_EVENTS_KEY.value]),
-                3,
-                "There should be three filtered events."
-            )
-            # get the path to the output file
-            curpath = os.path.dirname(__file__)
-            outfile = os.path.join(curpath, './data/output.xml')
-            # write out the results of the outbound message
-            with open(outfile, 'w+') as output_file:
-                output_file.write(
-                    context.context[ContextKeys.OUTBOUND_EPCIS_MESSAGE_KEY.value])
-                output_file.flush()
+        self._parse_test_data('data/antares-lot-batch.xml', AntaresParser)
 
 
-    # def test_rule_with_agg_comm_output_put(self):
-    #     self._create_good_ouput_criterion()
-    #     db_rule = self._create_rule()
-    #     self._create_step(db_rule)
-    #     self._create_output_steps(db_rule)
-    #     self._create_comm_step(db_rule)
-    #     self._create_epcpyyes_step(db_rule)
-    #     self._create_task_step(db_rule)
-    #     db_rule2 = self._create_transport_rule()
-    #     self._create_transport_step(db_rule2, put_data=True)
-    #     db_task = self._create_task(db_rule)
-    #     curpath = os.path.dirname(__file__)
-    #     # prepopulate the db
-    #     self._parse_test_data('data/commission_one_event.xml')
-    #     self._parse_test_data('data/nested_pack.xml')
-    #     data_path = os.path.join(curpath, 'data/ship_pallet.xml')
-    #     with open(data_path, 'r') as data_file:
-    #         context = execute_rule(data_file.read().encode(), db_task)
-    #         self.assertEqual(
-    #             len(context.context[ContextKeys.AGGREGATION_EVENTS_KEY.value]),
-    #             3,
-    #             "There should be three filtered events."
-    #         )
-    #         for event in context.context[
-    #             ContextKeys.AGGREGATION_EVENTS_KEY.value]:
-    #             if event.parent_id in ['urn:epc:id:sgtin:305555.3555555.1',
-    #                                    'urn:epc:id:sgtin:305555.3555555.2']:
-    #                 self.assertEqual(len(event.child_epcs), 5)
-    #             else:
-    #                 self.assertEqual(len(event.child_epcs), 2)
-    #         task_name = context.context[ContextKeys.CREATED_TASK_NAME_KEY]
-    #         execute_queued_task(task_name=task_name)
-    #         task = Task.objects.get(name=task_name)
-    #         self.assertEqual(task.status, 'FINISHED')
-    #
-    # def test_rule_with_agg_mulit_comm(self):
-    #     self._create_good_ouput_criterion()
-    #     db_rule = self._create_rule()
-    #     self._create_step(db_rule)
-    #     self._create_output_steps(db_rule)
-    #     self._create_comm_step(db_rule)
-    #     self._create_epcpyyes_step(db_rule)
-    #     db_task = self._create_task(db_rule)
-    #     curpath = os.path.dirname(__file__)
-    #     # prepopulate the db
-    #     self._parse_test_data('data/commission_three_events.xml')
-    #     self._parse_test_data('data/nested_pack.xml')
-    #     data_path = os.path.join(curpath, 'data/ship_pallet.xml')
-    #     with open(data_path, 'r') as data_file:
-    #         context = execute_rule(data_file.read().encode(), db_task)
-    #         self.assertEqual(
-    #             len(context.context[ContextKeys.AGGREGATION_EVENTS_KEY.value]),
-    #             3,
-    #             "There should be three filtered events."
-    #         )
-    #         for event in context.context[
-    #             ContextKeys.AGGREGATION_EVENTS_KEY.value]:
-    #             if event.parent_id in ['urn:epc:id:sgtin:305555.3555555.1',
-    #                                    'urn:epc:id:sgtin:305555.3555555.2']:
-    #                 self.assertEqual(len(event.child_epcs), 5)
-    #             else:
-    #                 self.assertEqual(len(event.child_epcs), 2)
-    #         self.assertIn(ContextKeys.OUTBOUND_EPCIS_MESSAGE_KEY.value,
-    #                       context.context,
-    #                       "No EPCIS message was found in the rule context.")
-    #         self.assertIn(ContextKeys.OBJECT_EVENTS_KEY.value,
-    #                       context.context)
-    #         self.assertEqual(
-    #             len(context.context[ContextKeys.OBJECT_EVENTS_KEY.value]), 3,
-    #             "There should be three object events."
-    #         )
-    #         for oevent in context.context[
-    #             ContextKeys.OBJECT_EVENTS_KEY.value]:
-    #             self.assertIn(len(oevent.epc_list), [10, 2, 1],
-    #                           "One of the object events in the context is "
-    #                           "malformed.")
+    def _create_good_output_criterion(self):
+        endpoint = self._create_endpoint()
+        auth = self._create_auth()
+        eoc = EPCISOutputCriteria()
+        eoc.name = "Test Criteria"
+        eoc.action = "ADD"
+        eoc.event_type = EventType.Transaction.value
+        eoc.disposition = Disposition.in_transit.value
+        eoc.biz_step = BusinessSteps.shipping.value
+        eoc.biz_location = 'urn:epc:id:sgln:305555.123456.0'
+        eoc.read_point = 'urn:epc:id:sgln:305555.123456.12'
+        eoc.source_type = 'urn:epcglobal:cbv:sdt:location'
+        eoc.source_id = 'urn:epc:id:sgln:305555.123456.12'
+        eoc.destination_type = 'urn:epcglobal:cbv:sdt:location'
+        eoc.destination_id = 'urn:epc:id:sgln:309999.111111.233'
+        eoc.authentication_info = auth
+        eoc.end_point = endpoint
+        eoc.save()
+        return eoc
 
     def _create_ADD_criterion(self):
         endpoint = self._create_endpoint()
@@ -144,7 +70,7 @@ class TestQuartetOutput(TestCase):
         eoc = EPCISOutputCriteria()
         # get all the events of type add
         eoc.name = "Test Criteria"
-        #eoc.action = "ADD"
+        # eoc.action = "ADD"
         eoc.read_point = 'urn:epc:id:sgln:0358716.00000.0'
         eoc.authentication_info = auth
         eoc.end_point = endpoint

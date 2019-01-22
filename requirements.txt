@@ -1,2 +1,6 @@
 quartet_epcis
+quartet_epcis
+quartet_output
+quartet_capture
+quartet_templates
 # Additional requirements go here

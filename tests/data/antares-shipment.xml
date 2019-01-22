@@ -21,12 +21,12 @@
                                  </bizTransactionList>
                                  <extension>
                                     <sourceList>
-                                       <source type="urn:epcglobal:cbv:sdt:owning_party">urn:epc:id:sgln:</source>
+                                       <source type="urn:epcglobal:cbv:sdt:owning_party">urn:epc:id:sgln:0358716.00000.0</source>
                                        <source type="urn:epcglobal:cbv:sdt:location">urn:epc:id:sgln:0358716.00000.0</source>
                                     </sourceList>
                                     <destinationList>
-                                       <destination type="urn:epcglobal:cbv:sdt:owning_party">urn:epc:id:sgln:</destination>
-                                       <destination type="urn:epcglobal:cbv:sdt:location">urn:epc:id:sgln:</destination>
+                                       <destination type="urn:epcglobal:cbv:sdt:owning_party">urn:epc:id:sgln:0358716.00000.1</destination>
+                                       <destination type="urn:epcglobal:cbv:sdt:location">urn:epc:id:sgln:0358716.00000.1</destination>
                                     </destinationList>
                                  </extension>
                                  <gs1ushc:eventID>Ship_20181101165940370</gs1ushc:eventID>
