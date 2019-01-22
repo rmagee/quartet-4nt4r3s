@@ -126,10 +126,14 @@ class AntaresEPCISReport(AntaresAPI):
         files = request.FILES if len(request.FILES) > 0 else request.POST
         run_immediately = request.query_params.get('run-immediately', False)
         if len(files) == 0:
-            raise exceptions.APIException(
-                'No files were posted.',
-                status.HTTP_400_BAD_REQUEST
-            )
+            message = etree.fromstring(request.body)
+            if message:
+                files = {'body': message}
+            else:
+                raise exceptions.APIException(
+                    'No files were posted.',
+                    status.HTTP_400_BAD_REQUEST
+                )
         elif len(files) > 1:
             raise exceptions.APIException(
                 'Only one file may be posted at a time.',
