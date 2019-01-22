@@ -49,16 +49,8 @@ Add quartet_4nt4r3s's URL patterns:
 Features
 --------
 
-* TODO
+* Adds an rfXcel emulation layer to QU4RTET, thus enabling an antares or
+  any other packaging line to communicate using rfXcel protocols.
 
-Running Tests
--------------
 
-Does the code actually work?
-
-::
-
-    source <YOURVIRTUALENV>/bin/activate
-    (myenv) $ pip install tox
-    (myenv) $ tox
 
