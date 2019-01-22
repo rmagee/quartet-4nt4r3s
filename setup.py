@@ -49,9 +49,9 @@ setup(
     version=version,
     description="""Parsing API for Antares""",
     long_description=readme + '\n\n' + history,
-    author='Loic Duros',
+    author='SerialLab, Corp.',
     author_email='slab@serial-lab.com',
-    url='https://gitlab.com/lduros/quartet_4nt4r3s',
+    url='https://gitlab.com/serial-lab/quartet_4nt4r3s',
     packages=[
         'quartet_4nt4r3s',
     ],
