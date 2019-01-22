@@ -126,7 +126,7 @@ class AntaresEPCISReport(AntaresAPI):
         files = request.FILES if len(request.FILES) > 0 else request.POST
         run_immediately = request.query_params.get('run-immediately', False)
         if len(files) == 0:
-            message = etree.fromstring(request.body)
+            message = request.data
             if message:
                 files = {'body': message}
             else:
