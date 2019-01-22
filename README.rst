@@ -14,7 +14,7 @@ Parsing API for Antares
 Documentation
 -------------
 
-The full documentation is at https://seriallab.gitlab.io/quartet_4nt4r3s/
+The full documentation is at https://serial-lab.gitlab.io/quartet_4nt4r3s/
 
 Quickstart
 ----------
