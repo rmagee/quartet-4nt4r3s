@@ -2,25 +2,25 @@
 Usage
 =====
 
-To use quartet_4nt4r3s in a project, add it to your `INSTALLED_APPS`:
+To use quartet_4nt4r3s in a project, add it to the bottom of your `LOCAL_APPS` in
+your config/settings/base.py module:
 
 .. code-block:: python
 
-    INSTALLED_APPS = (
+    LOCAL_APPS = (
         ...
         'quartet_4nt4r3s.apps.Quartet4nt4r3sConfig',
         ...
     )
 
-Add quartet_4nt4r3s's URL patterns:
+In your config/urls.py file in the QU4RTET root directory, add the following
+code:
 
 .. code-block:: python
 
-    from quartet_4nt4r3s import urls as quartet_4nt4r3s_urls
+    from quartet_4nt4r3s import urls as antares_urls
 
+Then, after the urlpatterns are defined, add this line:
 
-    urlpatterns = [
-        ...
-        url(r'^', include(quartet_4nt4r3s_urls)),
-        ...
-    ]
+    urlpatterns += antares_urls.urlpatterns
+
