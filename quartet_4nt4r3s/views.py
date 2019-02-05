@@ -87,6 +87,10 @@ class AntaresNumberRequest(AntaresAPI):
 
     def post(self, request, format=None):
         root = etree.fromstring(request.body)
+        scheme = getattr(settings, 'ANTARES_SERIALBOX_SCHEME', 'http')
+        host = getattr(settings, 'ANTARES_SERIALBOX_HOST', '127.0.0.1')
+        port = getattr(settings, 'ANTARES_SERIALBOX_PORT', None)
+        logger.debug('Using scheme, host, port %s, %s, %s', scheme, host, port)
         header = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Header')
         body = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
         username = self.get_tag_text(header,
@@ -101,10 +105,16 @@ class AntaresNumberRequest(AntaresAPI):
         pool = self.match_item_with_param(item_id)
         if not pool:
             pool = self.match_item_with_pool_machine_name(item_id)
-        url = "%s://%s/serialbox/allocate/%s/%d/?format=xml" % (
-        request.scheme, request.get_host(), pool.machine_name, int(id_count))
+        if not port:
+            url = "%s://%s/serialbox/allocate/%s/%d/?format=xml" % (
+                scheme, host, pool.machine_name, int(id_count))
+        else:
+            url = "%s://%s:%s/serialbox/allocate/%s/%d/?format=xml" % (
+                scheme, host, port, pool.machine_name, int(id_count))
+        logger.info('Using URL %s to contact serialbox: %s', url)
         api_response = requests.get(url,
                                     auth=HTTPBasicAuth(username, password))
+        logger.debug(api_response)
         return Response(api_response.text, api_response.status_code)
 
     def match_item_with_param(self, item_id):
