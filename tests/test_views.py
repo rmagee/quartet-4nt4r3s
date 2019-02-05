@@ -51,13 +51,12 @@ class ViewTest(APITestCase):
         self.assertIn('RECEIVED', response.data)
 
     def test_execute_view_with_rule(self):
-        self._create_filter(filter_name='idonotexist')
+        self._create_rule()
         url = reverse('antares-epcis-report')
         data = self._get_test_data()
         response = self.client.post(
-            '{0}?filter=utf&run-immediately=true'.format(url),
-            {'file': data},
-            format='multipart')
+            '{0}?rule=epcis&run-immediately=true'.format(url),
+            data=data, content_type='text')
         self.assertEqual(response.status_code, 200)
         self.assertIn('RECEIVED', response.data)
 
