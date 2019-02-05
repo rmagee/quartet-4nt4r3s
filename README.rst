@@ -2,10 +2,10 @@
 quartet_4nt4r3s
 =============================
 
-.. image:: https://gitlab.com/lduros/quartet_4nt4r3s/badges/master/coverage.svg
-   :target: https://gitlab.com/lduros/quartet_4nt4r3s/pipelines
-.. image:: https://gitlab.com/lduros/quartet_4nt4r3s/badges/master/build.svg
-   :target: https://gitlab.com/lduros/quartet_4nt4r3s/commits/master
+.. image:: https://gitlab.com/serial-lab/quartet_4nt4r3s/badges/master/coverage.svg
+   :target: https://gitlab.com/serial-lab/quartet_4nt4r3s/pipelines
+.. image:: https://gitlab.com/serial-lab/quartet_4nt4r3s/badges/master/build.svg
+   :target: https://gitlab.com/serial-lab/quartet_4nt4r3s/commits/master
 .. image:: https://badge.fury.io/py/quartet_4nt4r3s.svg
     :target: https://badge.fury.io/py/quartet_4nt4r3s
 
