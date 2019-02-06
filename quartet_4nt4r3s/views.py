@@ -4,7 +4,6 @@ import uuid
 from requests.auth import HTTPBasicAuth
 from lxml import etree
 from rest_framework.response import Response
-from rest_framework import exceptions
 from rest_framework import views
 from rest_framework.negotiation import DefaultContentNegotiation
 from list_based_flavorpack.models import ProcessingParameters
@@ -84,37 +83,38 @@ class AntaresNumberRequest(AntaresAPI):
     is the following:
      <ns:itemId qlfr="GTIN">10342195308095</ns:itemId>
     """
-
     def post(self, request, format=None):
         root = etree.fromstring(request.body)
-        scheme = getattr(settings, 'ANTARES_SERIALBOX_SCHEME', 'http')
+        scheme = getattr(settings, 'ANTARES_SERIALBOX_SCHEME', request.scheme)
         host = getattr(settings, 'ANTARES_SERIALBOX_HOST', '127.0.0.1')
         port = getattr(settings, 'ANTARES_SERIALBOX_PORT', None)
         logger.debug('Using scheme, host, port %s, %s, %s', scheme, host, port)
         header = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Header')
         body = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
-        username = self.get_tag_text(header,
-                                     './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Username')
-        password = self.get_tag_text(header,
-                                     './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password')
-        id_count = self.get_tag_text(body,
-                                     './/{http://xmlns.rfxcel.com/traceability/serializationService/3}idCount')
-        item_id = self.get_tag_text(body,
-                                    './/{http://xmlns.rfxcel.com/traceability/serializationService/3}itemId')
-        # match region/pool with item_id.
-        pool = self.match_item_with_param(item_id)
+        username = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Username')
+        password = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password')
+        id_count = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}idCount')
+        try:
+            item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}itemId')
+        except:
+            item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}allocOrgId')
+            extension = self.get_tag_text(body, ".//{http://xmlns.rfxcel.com/traceability/3}val[@name='SSCC_EXT_DIGIT']")
+            item_id = extension + item_id  # we need the extension in there to match different pools with the extension.                                                       
+        event_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}eventId')
+        pool = self.match_item_with_pool_machine_name(item_id)
         if not pool:
-            pool = self.match_item_with_pool_machine_name(item_id)
+            # match region/pool with item_id.                                                                                                                                 
+            pool = self.match_item_with_param(item_id)
+        payload = {'format': 'xml', 'eventId': event_id, 'requestId': event_id}
         if not port:
             url = "%s://%s/serialbox/allocate/%s/%d/?format=xml" % (
                 scheme, host, pool.machine_name, int(id_count))
         else:
             url = "%s://%s:%s/serialbox/allocate/%s/%d/?format=xml" % (
                 scheme, host, port, pool.machine_name, int(id_count))
-        logger.info('Using URL %s to contact serialbox: %s', url)
-        api_response = requests.get(url,
-                                    auth=HTTPBasicAuth(username, password))
+        api_response = requests.get(url, params=payload, auth=HTTPBasicAuth(username, password), verify=False)
         logger.debug(api_response)
+
         return Response(api_response.text, api_response.status_code)
 
     def match_item_with_param(self, item_id):
@@ -125,10 +125,7 @@ class AntaresNumberRequest(AntaresAPI):
             return None
 
     def match_item_with_pool_machine_name(self, item_id):
-        try:
-            return Pool.objects.get(machine_name=item_id)
-        except:
-            return None
+        return Pool.objects.get(machine_name=item_id)
 
 
 class AntaresEPCISReport(AntaresAPI):
