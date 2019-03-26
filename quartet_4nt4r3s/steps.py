@@ -4,25 +4,33 @@ from django.core.files.base import File
 
 from quartet_epcis.parsing.steps import EPCISParsingStep as EPS
 from quartet_capture.rules import RuleContext
-from quartet_epcis.parsing.parser import QuartetParser
 from quartet_4nt4r3s.conversion import AntaresBarcodeConverter
 from quartet_4nt4r3s.parser import BusinessEPCISParser
 from gs123.steps import ListBarcodeConversionStep
 
+
 class EPCISParsingStep(EPS):
     def execute(self, data, rule_context: RuleContext):
-        parser_type = QuartetParser if self.loose_enforcement else BusinessEPCISParser
+        increment_agg_dates = self.get_boolean_parameter(
+            'Increment Aggregation Dates', True, False)
+        self.info('Increment Aggregation Dates set to ', str())
         self.info('Loose Enforcement of busines rules set to %s',
                   self.loose_enforcement)
         self.info('Parsing message %s.dat', rule_context.task_name)
         try:
             if isinstance(data, File):
-                parser = parser_type(data)
+                parser = BusinessEPCISParser(
+                    data,
+                    increment_agg_dates=increment_agg_dates
+                )
             else:
-                parser = parser_type(io.BytesIO(data))
+                parser = BusinessEPCISParser(
+                    io.BytesIO(data),
+                    increment_agg_dates=increment_agg_dates
+                )
         except TypeError:
             try:
-                parser = parser_type(io.BytesIO(data.encode()))
+                parser = BusinessEPCISParser(io.BytesIO(data.encode()))
             except AttributeError:
                 self.error("Could not convert the data into a format that "
                            "could be handled.")
@@ -35,6 +43,7 @@ class AntaresBarcodeConversionStep(ListBarcodeConversionStep):
     '''
     Allows the return of the extension digit along with serial number field.
     '''
+
     def convert(self, data):
         """
         Will convert the data parameter to a urn value and return.
@@ -47,4 +56,4 @@ class AntaresBarcodeConversionStep(ListBarcodeConversionStep):
             self.company_prefix_length,
             self.serial_number_length
         ).__getattribute__(self.prop_name)
-        return prop_val if isinstance(prop_val, str) else prop_val()    
+        return prop_val if isinstance(prop_val, str) else prop_val()
