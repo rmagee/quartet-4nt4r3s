@@ -3,4 +3,5 @@ quartet_epcis
 quartet_output
 quartet_capture
 quartet_templates
+gs123
 # Additional requirements go here

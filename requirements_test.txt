@@ -16,4 +16,5 @@ quartet_templates
 paramiko
 coreapi
 coreschema
+gs123
 # Additional test requirements go here
