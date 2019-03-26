@@ -60,3 +60,5 @@ else:
     MIDDLEWARE_CLASSES = ()
 
 DEFAULT_ANTARES_RULE='epcis'
+
+MEDIA_ROOT = '/tmp'

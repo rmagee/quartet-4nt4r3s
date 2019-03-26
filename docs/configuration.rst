@@ -245,8 +245,8 @@ Set up the rfXcel Number Request Rule
 Save your changes.
 
 
-Set Up a Number Pool
---------------------
+Setting Up Number Pools and Regions
+===================================
 
 In QU4RTET UI, right click on *Number Pools* and select Add a New Pool
 
@@ -355,17 +355,18 @@ Example SGTIN Processing Parameters
 Example SSCC Processing Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
 .. image:: ./images/sscc-params.png
-
-rfXcel Message Template
-#######################
-
 
 
 Create a Response Rule for the Number Pool
 ++++++++++++++++++++++++++++++++++++++++++
+Any number pool configured as part of this exercise must appear to the
+calling line/antares/pacakging system as an rfXcel system.  The response
+rules that are associated with pools handle this function by turning a
+standard q4 response into what looks
+
+rfXcel Message Template
+#######################
 
 SSCC Notes
 ##########

@@ -12,6 +12,14 @@ quartet\_4nt4r3s.apps module
     :undoc-members:
     :show-inheritance:
 
+quartet\_4nt4r3s.conversion module
+----------------------------------
+
+.. automodule:: quartet_4nt4r3s.conversion
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 quartet\_4nt4r3s.models module
 ------------------------------
 
@@ -48,6 +56,38 @@ quartet\_4nt4r3s.views module
 -----------------------------
 
 .. automodule:: quartet_4nt4r3s.views
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+quartet\_4nt4r3s.views\_BACKUP\_42068 module
+--------------------------------------------
+
+.. automodule:: quartet_4nt4r3s.views_BACKUP_42068
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+quartet\_4nt4r3s.views\_BASE\_42068 module
+------------------------------------------
+
+.. automodule:: quartet_4nt4r3s.views_BASE_42068
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+quartet\_4nt4r3s.views\_LOCAL\_42068 module
+-------------------------------------------
+
+.. automodule:: quartet_4nt4r3s.views_LOCAL_42068
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+quartet\_4nt4r3s.views\_REMOTE\_42068 module
+--------------------------------------------
+
+.. automodule:: quartet_4nt4r3s.views_REMOTE_42068
     :members:
     :undoc-members:
     :show-inheritance:
