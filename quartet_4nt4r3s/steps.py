@@ -12,7 +12,7 @@ from gs123.steps import ListBarcodeConversionStep
 class EPCISParsingStep(EPS):
     def execute(self, data, rule_context: RuleContext):
         increment_agg_dates = self.get_boolean_parameter(
-            'Increment Aggregation Dates', True, False)
+            'Increment Aggregation Dates', True)
         self.info('Increment Aggregation Dates set to %s.', str(increment_agg_dates))
         self.info('Loose Enforcement of busines rules set to %s',
                   self.loose_enforcement)

@@ -1,4 +1,5 @@
 import copy
+import re
 from datetime import timedelta
 from dateutil import parser
 from pytz import timezone
@@ -40,6 +41,7 @@ class BusinessEPCISParser(BEP):
     def handle_aggregation_event(self, epcis_event: events.AggregationEvent):
         self.convert_dates(epcis_event, self.increment_agg_dates,
                            self.increment_val)
+        self.increment_val += 1
         super().handle_aggregation_event(epcis_event)
 
     def _pre_commission_event(self, epcis_event: yes_events.ObjectEvent):
