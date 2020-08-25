@@ -79,7 +79,7 @@ class AntaresNumberRequest(AntaresAPI):
     <ns:itemId qlfr="GTIN">10342195308095</ns:itemId>
 
     If none is found, then the itemId value is matched against the pool.machine_name.
-    For instance a pool.machine_name equal to 10342195308095 would be matched if the itemId in the inbound xml 
+    For instance a pool.machine_name equal to 10342195308095 would be matched if the itemId in the inbound xml
     is the following:
      <ns:itemId qlfr="GTIN">10342195308095</ns:itemId>
     """
@@ -99,11 +99,11 @@ class AntaresNumberRequest(AntaresAPI):
         except:
             item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}allocOrgId')
             extension = self.get_tag_text(body, ".//{http://xmlns.rfxcel.com/traceability/3}val[@name='SSCC_EXT_DIGIT']")
-            item_id = extension + item_id  # we need the extension in there to match different pools with the extension.                                                       
+            item_id = extension + item_id  # we need the extension in there to match different pools with the extension.
         event_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}eventId')
         pool = self.match_item_with_pool_machine_name(item_id)
         if not pool:
-            # match region/pool with item_id.                                                                                                                                 
+            # match region/pool with item_id.
             pool = self.match_item_with_param(item_id)
         payload = {'format': 'xml', 'eventId': event_id, 'requestId': event_id}
         if not port:

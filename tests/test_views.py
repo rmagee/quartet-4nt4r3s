@@ -13,6 +13,7 @@
 #
 # Copyright 2018 SerialLab Corp.  All rights reserved.
 import os
+
 import django
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
@@ -21,8 +22,6 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.contrib.auth.models import Group, User
 from quartet_capture import models
-from quartet_capture.rules import clone_rule
-from quartet_capture.views import get_rules_by_filter
 from quartet_capture.management.commands.create_capture_groups import Command
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
