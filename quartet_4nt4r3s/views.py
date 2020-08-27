@@ -14,6 +14,7 @@ from django.template import loader
 from django.conf import settings
 from quartet_capture.tasks import create_and_queue_task, get_rules_by_filter
 from quartet_capture.models import Filter
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 
@@ -83,28 +84,30 @@ class AntaresNumberRequest(AntaresAPI):
     is the following:
      <ns:itemId qlfr="GTIN">10342195308095</ns:itemId>
     """
+
     def post(self, request, format=None):
-        root = etree.fromstring(request.body)
+        # root = etree.fromstring(request.body)
+        root = etree.iterparse(BytesIO(request.body), events=('end',),
+                               remove_comments=True)
+        parsed_data = self.parse_root(root)
+        username = parsed_data.get('username')
+        password = parsed_data.get('password')
         scheme = getattr(settings, 'ANTARES_SERIALBOX_SCHEME', request.scheme)
         host = getattr(settings, 'ANTARES_SERIALBOX_HOST', '127.0.0.1')
         port = getattr(settings, 'ANTARES_SERIALBOX_PORT', None)
         logger.debug('Using scheme, host, port %s, %s, %s', scheme, host, port)
-        header = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Header')
-        body = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
-        username = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Username')
-        password = self.get_tag_text(header, './/{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd}Password')
-        id_count = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}idCount')
-        try:
-            item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}itemId')
-        except:
-            item_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}allocOrgId')
-            extension = self.get_tag_text(body, ".//{http://xmlns.rfxcel.com/traceability/3}val[@name='SSCC_EXT_DIGIT']")
-            item_id = extension + item_id  # we need the extension in there to match different pools with the extension.
-        event_id = self.get_tag_text(body, './/{http://xmlns.rfxcel.com/traceability/serializationService/3}eventId')
+        id_count = parsed_data.get('count')
+
+        if parsed_data.get('is_gtin'):
+            item_id = parsed_data.get('item_id')
+        elif parsed_data.get('is_sscc'):
+            item_id = '{0}{1}'.format(parsed_data.get('extension_digit'),parsed_data.get('company_prefix'))
+
         pool = self.match_item_with_pool_machine_name(item_id)
         if not pool:
             # match region/pool with item_id.
             pool = self.match_item_with_param(item_id)
+        event_id = parsed_data.get('event_id')
         payload = {'format': 'xml', 'eventId': event_id, 'requestId': event_id}
         if not port:
             url = "%s://%s/serialbox/allocate/%s/%d/?format=xml" % (
@@ -112,10 +115,46 @@ class AntaresNumberRequest(AntaresAPI):
         else:
             url = "%s://%s:%s/serialbox/allocate/%s/%d/?format=xml" % (
                 scheme, host, port, pool.machine_name, int(id_count))
-        api_response = requests.get(url, params=payload, auth=HTTPBasicAuth(username, password), verify=False)
+        api_response = requests.get(url, params=payload,
+                                    auth=HTTPBasicAuth(username, password),
+                                    verify=False)
         logger.debug(api_response)
 
         return Response(api_response.text, api_response.status_code)
+
+    def parse_root(self, root):
+        parsed_data = {'is_gtin': False, 'is_sscc': False}
+        for event, element in root:
+            print(element.tag)
+            if element.tag.endswith('Username'):
+                parsed_data['username'] = getattr(element, 'text', '').strip()
+            elif 'Password' in element.tag:
+                parsed_data['password'] = getattr(element, 'text', '').strip()
+            elif 'itemId' in element.tag:
+                if element.attrib.get('qlfr') == 'GTIN':
+                    parsed_data['item_id'] = getattr(element, 'text', '').strip()
+                    parsed_data['is_gtin'] = True
+            elif 'allocOrgId' in element.tag:
+                if element.attrib.get('GS1_COMPANY_PREFIX'):
+                    parsed_data['company_prefix'] = getattr(element, 'text', '').strip()
+            elif element.tag.endswith('val'):
+                name = element.attrib.get('name')
+                if name == 'SSCC_EXT_DIGIT':
+                    parsed_data['extension_digit'] = getattr(element, 'text', '').strip()
+                    parsed_data['is_sscc'] = True
+            elif element.tag.endswith('idCount'):
+                parsed_data['count'] = getattr(element, 'text', '').strip()
+            elif element.tag.endswith('syncAllocateTraceIds'):
+                parsed_data['request_id'] = element.attrib.get('requestId')
+            elif element.tag.endswith('eventId'):
+                parsed_data['event_id'] = getattr(element, 'text', '').strip()
+        return parsed_data
+
+    def parse_header(self, header):
+        print('parse_header called')
+
+    def parse_body(self, body):
+        print('parse_body called')
 
     def match_item_with_param(self, item_id):
         try:

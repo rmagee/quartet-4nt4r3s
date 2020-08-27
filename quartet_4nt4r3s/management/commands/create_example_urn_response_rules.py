@@ -10,4 +10,7 @@ class Command(base.BaseCommand):
         utils.create_rfxcel_gtin_response_rule()
         print('Complete...creating the response template...')
         utils.create_rfxcel_template()
-        print('Complete')
+        print('Complete...creating the sequential rule')
+        utils.create_sequential_rfxcel_gtin_response_rule()
+        print('Complete...creating the sequential sscc rule')
+        utils.create_sequential_rfxcel_sscc_response_rule()
