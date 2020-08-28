@@ -14,3 +14,6 @@ class Command(base.BaseCommand):
         utils.create_sequential_rfxcel_gtin_response_rule()
         print('Complete...creating the sequential sscc rule')
         utils.create_sequential_rfxcel_sscc_response_rule()
+        print('Creating sequential templates...')
+        utils.create_sequential_rfxcel_template()
+        utils.create_sequential_sscc_rfxcel_template()

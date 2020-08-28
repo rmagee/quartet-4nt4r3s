@@ -1,20 +1,22 @@
-import requests
 import logging
+import requests
 import uuid
-from requests.auth import HTTPBasicAuth
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.template import loader
+from io import BytesIO
 from lxml import etree
-from rest_framework.response import Response
+from requests.auth import HTTPBasicAuth
+from rest_framework import status
 from rest_framework import views
 from rest_framework.negotiation import DefaultContentNegotiation
+from rest_framework.response import Response
+from rest_framework import exceptions
+
 from list_based_flavorpack.models import ProcessingParameters
-from serialbox.models import Pool
-from django.contrib.auth import authenticate, login
-from rest_framework import status
-from django.template import loader
-from django.conf import settings
-from quartet_capture.tasks import create_and_queue_task, get_rules_by_filter
 from quartet_capture.models import Filter
-from io import BytesIO
+from quartet_capture.tasks import create_and_queue_task, get_rules_by_filter
+from serialbox.models import Pool
 
 logger = logging.getLogger(__name__)
 
@@ -86,41 +88,46 @@ class AntaresNumberRequest(AntaresAPI):
     """
 
     def post(self, request, format=None):
-        # root = etree.fromstring(request.body)
-        root = etree.iterparse(BytesIO(request.body), events=('end',),
-                               remove_comments=True)
-        parsed_data = self.parse_root(root)
-        username = parsed_data.get('username')
-        password = parsed_data.get('password')
-        scheme = getattr(settings, 'ANTARES_SERIALBOX_SCHEME', request.scheme)
-        host = getattr(settings, 'ANTARES_SERIALBOX_HOST', '127.0.0.1')
-        port = getattr(settings, 'ANTARES_SERIALBOX_PORT', None)
-        logger.debug('Using scheme, host, port %s, %s, %s', scheme, host, port)
-        id_count = parsed_data.get('count')
+        try:
+            root = etree.iterparse(BytesIO(request.body), events=('end',),
+                                   remove_comments=True)
+            parsed_data = self.parse_root(root)
+            username = parsed_data.get('username')
+            password = parsed_data.get('password')
+            scheme = getattr(settings, 'ANTARES_SERIALBOX_SCHEME', request.scheme)
+            host = getattr(settings, 'ANTARES_SERIALBOX_HOST', '127.0.0.1')
+            port = getattr(settings, 'ANTARES_SERIALBOX_PORT', None)
+            logger.debug('Using scheme, host, port %s, %s, %s', scheme, host, port)
+            id_count = parsed_data.get('count')
 
-        if parsed_data.get('is_gtin'):
-            item_id = parsed_data.get('item_id')
-        elif parsed_data.get('is_sscc'):
-            item_id = '{0}{1}'.format(parsed_data.get('extension_digit'),parsed_data.get('company_prefix'))
+            if parsed_data.get('is_gtin'):
+                item_id = parsed_data.get('item_id')
+            elif parsed_data.get('is_sscc'):
+                item_id = '{0}{1}'.format(parsed_data.get('extension_digit'),parsed_data.get('company_prefix'))
 
-        pool = self.match_item_with_pool_machine_name(item_id)
-        if not pool:
-            # match region/pool with item_id.
-            pool = self.match_item_with_param(item_id)
-        event_id = parsed_data.get('event_id')
-        payload = {'format': 'xml', 'eventId': event_id, 'requestId': event_id}
-        if not port:
-            url = "%s://%s/serialbox/allocate/%s/%d/?format=xml" % (
-                scheme, host, pool.machine_name, int(id_count))
-        else:
-            url = "%s://%s:%s/serialbox/allocate/%s/%d/?format=xml" % (
-                scheme, host, port, pool.machine_name, int(id_count))
-        api_response = requests.get(url, params=payload,
-                                    auth=HTTPBasicAuth(username, password),
-                                    verify=False)
-        logger.debug(api_response)
+            pool = self.match_item_with_pool_machine_name(item_id)
+            if not pool:
+                # match region/pool with item_id.
+                pool = self.match_item_with_param(item_id)
+            event_id = parsed_data.get('event_id')
+            payload = {'format': 'xml', 'eventId': event_id, 'requestId': event_id}
+            if not port:
+                url = "%s://%s/serialbox/allocate/%s/%d/?format=xml" % (
+                    scheme, host, pool.machine_name, int(id_count))
+            else:
+                url = "%s://%s:%s/serialbox/allocate/%s/%d/?format=xml" % (
+                    scheme, host, port, pool.machine_name, int(id_count))
+            api_response = requests.get(url, params=payload,
+                                        auth=HTTPBasicAuth(username, password),
+                                        verify=False)
+            logger.debug(api_response)
+            ret = Response(api_response.text, api_response.status_code)
+        except Pool.DoesNotExist as pdn:
+            raise exceptions.NotFound(str(pdn))
+        except Exception as e:
+            raise exceptions.APIException(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(api_response.text, api_response.status_code)
+        return ret
 
     def parse_root(self, root):
         parsed_data = {'is_gtin': False, 'is_sscc': False}
@@ -135,7 +142,7 @@ class AntaresNumberRequest(AntaresAPI):
                     parsed_data['item_id'] = getattr(element, 'text', '').strip()
                     parsed_data['is_gtin'] = True
             elif 'allocOrgId' in element.tag:
-                if element.attrib.get('GS1_COMPANY_PREFIX'):
+                if element.attrib.get('qlfr') == 'GS1_COMPANY_PREFIX':
                     parsed_data['company_prefix'] = getattr(element, 'text', '').strip()
             elif element.tag.endswith('val'):
                 name = element.attrib.get('name')
